@@ -1,0 +1,67 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One person, one fleet of agents</title><meta name="description" content="SuperHarness, FleetMux and tmux-agent-status: see which AI agent is waiting for you, route work across 40 projects, keep the always-loaded context flat.">
+<meta property="og:title" content="One person, one fleet of agents"><meta property="og:description" content="SuperHarness, FleetMux and tmux-agent-status: see which AI agent is waiting for you, route work across 40 projects, keep the always-loaded context flat."><meta property="og:image" content="https://xiaolongnk.github.io/assets/fleetmux-demo.gif"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css"></head><body>
+<nav><a class="brand" href="../">xiaolongnk</a><span><a href="../agent-fleet/">EN</a><a href="../zh/agent-fleet/">中文</a><a href="https://github.com/xiaolongnk">GitHub</a></span></nav><main>
+<div class="hero"><div class="eyebrow">Open source · MIT · three repos</div>
+<h1>One person,<br>one fleet of agents.</h1>
+<p class="lead">Seven or eight panes of Claude Code, Codex, Cursor and Gemini, forty projects taking turns — that is a normal working day for us. These three repositories are everything that makes it run.</p>
+<div class="trio">
+<a href="https://github.com/xiaolongnk/SuperHarness"><div class="k k1">SH</div><div><div class="n">SuperHarness</div><div class="d">decides what the agents work on: project routing, on-demand skills, a memory that doesn't bloat</div></div></a>
+<a href="https://github.com/xiaolongnk/fleetmux"><div class="k k2">FM</div><div><div class="n">FleetMux</div><div class="d">lets you watch them work: the agent-native tmux distribution, one command to install</div></div></a>
+<a href="https://github.com/xiaolongnk/tmux-agent-status"><div class="k k3">TA</div><div><div class="n">tmux-agent-status</div><div class="d">just the status bar? one TPM line into the tmux config you already have</div></div></a>
+</div></div>
+<section><div class="eyebrow">The problem</div><h2>One agent on one repo works. It stops working at project #4.</h2>
+<div class="pain">
+<div><b>You can't see.</b> Which of eight panes is asking for approval, and which finished ten minutes ago? You click through them one by one.</div>
+<div><b>It doesn't remember.</b> Every new session re-derives which project owns what, what was in flight, what was already tried.</div>
+<div><b>It doesn't learn.</b> The reflex fix is to paste one more paragraph into CLAUDE.md. Every lesson makes the prompt longer, until nothing in it fires reliably.</div>
+</div></section>
+<section><div class="eyebrow">FleetMux</div><h2>See which agent is waiting for you. Jump there with one key.</h2>
+<div class="card"><img class="gif" alt="fleetmux demo" src="../assets/fleetmux-demo.gif">
+<p class="cap">The bar reads <code>⬡ Claude 2 ●1 ◆ Codex 2 ●1</code>: two Claude panes, one asking for approval; two Codex panes, one idle. <code>Ctrl-q Enter</code> goes to the next pane that needs you.</p>
+<ul class="pts">
+<li><b>Detected by command, not title.</b> Claude Code titles its pane with the conversation topic, Codex with the task — on a real server with 12 Claude and 16 Codex panes, exactly one title contained the word "claude". <code>pane_current_command</code> has no such ambiguity.</li>
+<li><b>State read from the screen.</b> "esc to interrupt" = busy; "Do you want to proceed?" = waiting for approval; neither = idle. 29 panes probe in 0.4 s.</li>
+<li><b>One command installs everything</b> — tmux, plugins, Starship, Nerd Font — and running it twice is a no-op (CI installs twice and diffs). <code>fleetmux-doctor</code> checks the setup; <code>fleetmux-start claude codex</code> launches the agents.</li>
+</ul>
+<pre><span class="c"># install</span>
+bash &lt;(curl -fsSL https://raw.githubusercontent.com/xiaolongnk/fleetmux/main/bin/install.sh)
+<span class="c"># or just the status bar, in your own ~/.tmux.conf</span>
+set -g @plugin <span class="g">'xiaolongnk/tmux-agent-status'</span></pre></div></section>
+<section><div class="eyebrow">SuperHarness</div><h2>One number to defend: the always-loaded tax.</h2>
+<p class="lead" style="font-size:15px;margin-bottom:0">Every line in CLAUDE.md is a tax paid on every session. SuperHarness splits every layer — rules, skills, memory, knowledge, task state — into a small index that always loads and a library that loads only on match. The library may grow without limit; the index must stay flat.</p>
+<div class="card"><svg class="chart" viewBox="0 0 640 300" width="100%" role="img" aria-label="always-loaded bytes vs number of projects">
+<g font-family="JetBrains Mono,monospace" font-size="12" fill="#64748B">
+<line x1="70" y1="20" x2="70" y2="250" stroke="#E2E8F0"/><line x1="70" y1="250" x2="610" y2="250" stroke="#E2E8F0"/>
+<text x="340" y="285" text-anchor="middle">projects registered</text>
+<text x="14" y="30" transform="rotate(-90 14 30)" text-anchor="end">bytes loaded per session</text>
+<text x="62" y="254" text-anchor="end">0</text><text x="62" y="60" text-anchor="end">80KB</text><text x="62" y="155" text-anchor="end">40KB</text>
+<text x="88" y="268" text-anchor="middle">1</text><text x="340" y="268" text-anchor="middle">20</text><text x="592" y="268" text-anchor="middle">40</text></g>
+<path d="M88 220 L592 40" stroke="#F97316" stroke-width="3" fill="none" stroke-linecap="round"/>
+<text x="470" y="70" font-family="IBM Plex Sans,sans-serif" font-size="13" fill="#F97316" font-weight="600">"paste it into CLAUDE.md"</text>
+<text x="470" y="86" font-family="IBM Plex Sans,sans-serif" font-size="12" fill="#F97316">+2KB per project → ≈90KB at project #40</text>
+<path d="M88 220 L592 214" stroke="#2563EB" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="88" cy="220" r="5" fill="#2563EB"/><circle cx="465" cy="215.5" r="5" fill="#2563EB"/>
+<text x="100" y="212" font-family="IBM Plex Sans,sans-serif" font-size="13" fill="#2563EB" font-weight="600">SuperHarness</text>
+<text x="100" y="240" font-family="JetBrains Mono,monospace" font-size="11" fill="#2563EB">12.6KB to start · +94 bytes per project (measured)</text></svg>
+<ul class="pts">
+<li><b>Portfolio, not task.</b> A requirement comes in → the registry routes it to a project → that project's agent definition says how work is done there, its task board says what's in flight. The tier (personal / work) decides git and review policy; nothing is judged per task.</li>
+<li><b>Lessons go into the library; the core doesn't grow.</b> Correction → <code>learn</code> files it in the right layer → <code>curate</code> sediments what stopped earning its always-loaded place into knowledge/ → <code>check</code> proves the index didn't grow.</li>
+<li><b>Falsifiable.</b> <code>superharness check</code> measures the real loading surface and exits 1 when the tax grows, or when the registry, agent definitions, boards and memory index disagree.</li>
+</ul>
+<pre>npm create superharness my-hub
+npx create-superharness add-project notes personal
+npx create-superharness check</pre>
+<div class="receipt"><b>Measured — a real claude session inside a scaffolded hub</b>
+T1 routing      "search stale after CSV import" → acme-notes; finds the prior lesson + board state first
+T2 cold resume  fresh session: "resume share-link" → share.js:74 · a3f9c1e · next step · blocker
+T3 scale        +30 projects → +94 bytes each; routing still reads one file (the registry)
+T4 learn loop   /learn a cross-project lesson → lands in knowledge/, MEMORY.md untouched, tax +0</div></div>
+<div class="stats"><div><div class="v">15</div><div class="l">disciplines<br>index always on, bodies on demand</div></div><div><div class="v">13</div><div class="l">skills<br>loaded by description match</div></div><div><div class="v">18</div><div class="l">unit + 4 behavioral tests<br>run against the packed tarball</div></div></div></section>
+<div class="cta"><h2>Start here</h2><p>All three are MIT. Extracted from a harness that runs a real 40-project portfolio daily; every project, host and incident in the repos is fictional.</p>
+<a href="https://github.com/xiaolongnk/fleetmux">github.com/xiaolongnk/fleetmux →</a><a href="https://github.com/xiaolongnk/tmux-agent-status">github.com/xiaolongnk/tmux-agent-status →</a><a href="https://github.com/xiaolongnk/SuperHarness">github.com/xiaolongnk/SuperHarness →</a>
+<p style="margin-top:16px">Want to see the agents from your phone? <a href="https://termio.xyz" style="display:inline">Termio</a> uses the same probe.</p></div>
+<p class="foot">Numbers are from the day's test runs (fleetmux 8985263, SuperHarness 08848d1).</p>
+</main></body></html>

@@ -1,0 +1,99 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一个人，跑一个 agent 舰队</title><meta name="description" content="SuperHarness、FleetMux、tmux-agent-status：一眼看到哪个 agent 在等你，40 个项目的需求路由，always-loaded 上下文持平。">
+<meta property="og:title" content="一个人，跑一个 agent 舰队"><meta property="og:description" content="SuperHarness、FleetMux、tmux-agent-status：一眼看到哪个 agent 在等你，40 个项目的需求路由，always-loaded 上下文持平。"><meta property="og:image" content="https://xiaolongnk.github.io/assets/fleetmux-demo.gif"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css"></head><body>
+<nav><a class="brand" href="../../">xiaolongnk</a><span><a href="../../agent-fleet/">EN</a><a href="../../zh/agent-fleet/">中文</a><a href="https://github.com/xiaolongnk">GitHub</a></span></nav><main>
+
+<div class="hero">
+<div class="eyebrow">Open source · MIT · 三件套</div>
+<h1>一个人，<br>跑一个 agent 舰队。</h1>
+<p class="lead">Claude Code、Codex、Cursor、Gemini 同时开着七八个 pane，四十个项目轮着来——这是我们每天真实的工作方式。这三个仓库，就是让它跑得动的全部东西。</p>
+<div class="trio">
+<a href="https://github.com/xiaolongnk/SuperHarness"><div class="k k1">SH</div><div><div class="n">SuperHarness</div><div class="d">决定 agent 干什么：项目路由、按需加载的 skill、不会膨胀的记忆</div></div></a>
+<a href="https://github.com/xiaolongnk/fleetmux"><div class="k k2">FM</div><div><div class="n">FleetMux</div><div class="d">让你看着它们干：一条命令装好的 agent 原生 tmux 发行版</div></div></a>
+<a href="https://github.com/xiaolongnk/tmux-agent-status"><div class="k k3">TA</div><div><div class="n">tmux-agent-status</div><div class="d">只要状态栏？一行 TPM 插件，加进你自己的 tmux 配置</div></div></a>
+</div>
+</div>
+
+<section>
+<div class="eyebrow">问题</div>
+<h2>单个 agent、单个仓库没问题。到第 4 个项目就撑不住了。</h2>
+<div class="pain">
+<div><b>看不见。</b>八个 pane 里哪个在等你审批、哪个早就干完了？你得一个个切过去看。</div>
+<div><b>记不住。</b>每个新会话都重新推导：哪个项目管什么、上次做到哪、什么已经试过。</div>
+<div><b>学不会。</b>本能的修法是往 CLAUDE.md 里再贴一段。每一个教训都让 prompt 长一点，直到没有一条能可靠触发。</div>
+</div>
+</section>
+
+<section>
+<div class="eyebrow">FleetMux</div>
+<h2>哪个 agent 在等你，一眼看到，一键跳过去。</h2>
+<div class="card">
+<img class="gif" alt="fleetmux demo" src="../../assets/fleetmux-demo.gif">
+<p class="cap">状态栏 <code>⬡ Claude 2 ●1 ◆ Codex 2 ●1</code>：两个 Claude pane，一个在等审批；两个 Codex，一个已空闲。<code>Ctrl-q Enter</code> 跳到下一个需要你的 pane。</p>
+<ul class="pts">
+<li><b>按命令识别，不靠标题。</b>Claude Code 把 pane 标题设成对话主题，Codex 设成任务名——真实服务器上 12 个 Claude、16 个 Codex，标题里只有 1 个写着 "claude"。看 <code>pane_current_command</code> 就没有歧义。</li>
+<li><b>状态从屏幕读。</b>"esc to interrupt" = 忙；"Do you want to proceed?" = 等审批；都没有 = 空闲等你。29 个 pane 探测 0.4 秒。</li>
+<li><b>一条命令装好一切</b>：tmux + 插件 + Starship + Nerd Font，可重复运行（CI 真装两遍做 diff），<code>fleetmux-doctor</code> 体检，<code>fleetmux-start claude codex</code> 直接拉起 agent。</li>
+</ul>
+<pre><span class="c"># 安装</span>
+bash &lt;(curl -fsSL https://raw.githubusercontent.com/xiaolongnk/fleetmux/main/bin/install.sh)
+<span class="c"># 或者只要状态栏——加进你自己的 ~/.tmux.conf</span>
+set -g @plugin <span class="g">'xiaolongnk/tmux-agent-status'</span></pre>
+</div>
+</section>
+
+<section>
+<div class="eyebrow">SuperHarness</div>
+<h2>只守一个数字：always-loaded tax。</h2>
+<p class="lead" style="font-size:15px;margin-bottom:0">CLAUDE.md 里的每一行，都是每次会话都要交的税。SuperHarness 把每一层——规则、skill、记忆、知识、任务状态——都拆成"每次都加载的小索引"和"命中才加载的库"。库可以无限长，索引必须持平。</p>
+<div class="card">
+<svg class="chart" viewBox="0 0 640 300" width="100%" role="img" aria-label="always-loaded tax vs 项目数">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94A3B8"/></marker></defs>
+<g font-family="JetBrains Mono,monospace" font-size="12" fill="#64748B">
+<line x1="70" y1="20" x2="70" y2="250" stroke="#E2E8F0"/><line x1="70" y1="250" x2="610" y2="250" stroke="#E2E8F0"/>
+<text x="340" y="285" text-anchor="middle">注册的项目数</text>
+<text x="14" y="30" transform="rotate(-90 14 30)" text-anchor="end">每次会话加载的字节</text>
+<text x="62" y="254" text-anchor="end">0</text><text x="62" y="60" text-anchor="end">80KB</text><text x="62" y="155" text-anchor="end">40KB</text>
+<text x="88" y="268" text-anchor="middle">1</text><text x="340" y="268" text-anchor="middle">20</text><text x="592" y="268" text-anchor="middle">40</text>
+</g>
+<path d="M88 220 L592 40" stroke="#F97316" stroke-width="3" fill="none" stroke-linecap="round"/>
+<text x="470" y="70" font-family="IBM Plex Sans,sans-serif" font-size="13" fill="#F97316" font-weight="600">"往 CLAUDE.md 里贴"</text>
+<text x="470" y="86" font-family="IBM Plex Sans,sans-serif" font-size="12" fill="#F97316">每个项目 +2KB，第 40 个项目时 ≈ 90KB</text>
+<path d="M88 220 L592 214" stroke="#2563EB" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="88" cy="220" r="5" fill="#2563EB"/><circle cx="465" cy="215.5" r="5" fill="#2563EB"/>
+<text x="100" y="212" font-family="IBM Plex Sans,sans-serif" font-size="13" fill="#2563EB" font-weight="600">SuperHarness</text>
+<text x="100" y="240" font-family="JetBrains Mono,monospace" font-size="11" fill="#2563EB">12.6KB 起步 · 每项目 +94 字节（实测）</text>
+</g></svg>
+<ul class="pts">
+<li><b>组合，不是单任务。</b>需求进来 → registry 路由到项目 → 该项目的 agent 定义说"这里怎么干"，任务板说"干到哪了"。personal / work 两个 tier 决定 git 与 review 流程，不靠每次临场判断。</li>
+<li><b>教训进库，核心不涨。</b>纠正 → <code>learn</code> 路由到对的层 → <code>curate</code> 把不再值得常驻的沉淀进 knowledge/ → <code>check</code> 证明索引没长。</li>
+<li><b>可证伪。</b><code>superharness check</code> 度量真实的加载面，税涨了就 exit 1；registry / agent / 任务板 / 记忆索引不一致也红。</li>
+</ul>
+<pre>npm create superharness my-hub
+npx create-superharness add-project notes personal
+npx create-superharness check</pre>
+<div class="receipt"><b>实测（真实 claude 会话跑在生成的仓库里）</b>
+T1 路由     "CSV 导入后搜索不到" → acme-notes，先找到既有教训 + 任务板状态
+T2 冷启动   全新会话："接着做 share-link" → share.js:74 · a3f9c1e · 下一步 · 阻塞点
+T3 规模     +30 个项目 → 每项目 +94 字节，路由仍只读 registry 一个文件
+T4 学习     /learn 一条跨项目教训 → 进 knowledge/，MEMORY.md 未动，税 +0</div>
+</div>
+<div class="stats">
+<div><div class="v">15</div><div class="l">条 discipline<br>索引常驻，正文按需</div></div>
+<div><div class="v">13</div><div class="l">个 skill<br>按 description 命中加载</div></div>
+<div><div class="v">18</div><div class="l">条测试 + 4 项行为验证<br>对 tarball 跑</div></div>
+</div>
+</section>
+
+<div class="cta">
+<h2>从这里开始</h2>
+<p>三个都是 MIT。从一个每天真实跑着 40 个项目的 harness 里抽出来，仓库里所有项目、主机、事故都是虚构的。</p>
+<a href="https://github.com/xiaolongnk/fleetmux">github.com/xiaolongnk/fleetmux →</a>
+<a href="https://github.com/xiaolongnk/tmux-agent-status">github.com/xiaolongnk/tmux-agent-status →</a>
+<a href="https://github.com/xiaolongnk/SuperHarness">github.com/xiaolongnk/SuperHarness →</a>
+<p style="margin-top:16px">在手机上看这些 agent？<a href="https://termio.xyz" style="display:inline">Termio</a> 用的是同一个探针。</p>
+</div>
+<p class="foot">数字均来自当天的实测记录（fleetmux 8985263，SuperHarness 08848d1）</p>
+</main></body></html>

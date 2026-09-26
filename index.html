@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>xiaolongnk — tools for running AI agent fleets</title><meta name="description" content="Open-source tools for people who run many AI coding agents at once: SuperHarness, FleetMux, tmux-agent-status, tmux-messager, Termio.">
+<meta property="og:title" content="xiaolongnk — tools for running AI agent fleets"><meta property="og:description" content="Open-source tools for people who run many AI coding agents at once: SuperHarness, FleetMux, tmux-agent-status, tmux-messager, Termio."><meta property="og:image" content="https://xiaolongnk.github.io/assets/fleetmux-demo.gif"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<nav><a class="brand" href="">xiaolongnk</a><span><a href="agent-fleet/">EN</a><a href="zh/agent-fleet/">中文</a><a href="https://github.com/xiaolongnk">GitHub</a></span></nav><main>
+<div class="hero"><div class="eyebrow">Open source · MIT</div>
+<h1>Tools for people who run<br>a fleet of AI coding agents.</h1>
+<p class="lead">Built while running Claude Code, Codex, Cursor and Gemini across a real 40-project portfolio, every day. Each one solves a problem that only shows up past the fourth project or the fourth pane.</p>
+<div class="grid">
+<a class="prod" href="https://github.com/xiaolongnk/SuperHarness"><div class="k k1">SH</div><div><h3>SuperHarness</h3><p>The harness that decides what agents work on: a project registry that routes requirements, layered disciplines, on-demand skills, a two-layer memory whose always-loaded core stays flat. <code>npm create superharness</code></p><div class="m">CLI · 13 skills · 15 disciplines · behavioral tests against a real agent</div></div></a>
+<a class="prod" href="https://github.com/xiaolongnk/fleetmux"><div class="k k2">FM</div><div><h3>FleetMux</h3><p>The agent-native tmux distribution. One command installs tmux, plugins, Starship and a Nerd Font; the status bar counts your agent panes and marks the ones waiting for you; <code>prefix+Enter</code> jumps there.</p><div class="m">macOS / Linux / WSL2 · idempotent installer · fleetmux-doctor</div></div></a>
+<a class="prod" href="https://github.com/xiaolongnk/tmux-agent-status"><div class="k k3">TA</div><div><h3>tmux-agent-status</h3><p>Just the status bar, as a TPM plugin for the tmux config you already have. <code>set -g @plugin 'xiaolongnk/tmux-agent-status'</code></p><div class="m">tmux ≥ 3.0 · bash · zero dependencies</div></div></a>
+<a class="prod" href="https://github.com/xiaolongnk/tmux-messager"><div class="k k4">TM</div><div><h3>tmux-messager</h3><p>Shell scripts for agents to send messages to each other across tmux panes — correct submit-key handling per CLI, pane discovery, automatic reply-to injection.</p><div class="m">the wire between panes</div></div></a>
+<a class="prod" href="https://termio.xyz"><div class="k k5">TX</div><div><h3>Termio</h3><p>Watch your agents from your phone: pane output, messages, and a notification when one needs you. Uses the same probe as tmux-agent-status.</p><div class="m">iOS · termio.xyz</div></div></a>
+</div></div>
+<section><div class="eyebrow">Read</div><h2>How they fit together</h2>
+<p class="lead" style="font-size:15px">SuperHarness decides what to do · FleetMux lets you watch it happen · Termio lets you watch from anywhere. The write-up, with the numbers:</p>
+<div class="trio"><a href="agent-fleet/"><div class="k k1">EN</div><div><div class="n">One person, one fleet of agents</div><div class="d">the three-project story, with measurements</div></div></a>
+<a href="zh/agent-fleet/"><div class="k k2">中</div><div><div class="n">一个人，跑一个 agent 舰队</div><div class="d">同一篇的中文版</div></div></a></div></section>
+<p class="foot">Everything here is MIT. Extracted clean-room from a working harness — every project, host and incident in the repos is fictional. <a href="https://blog.nofile.cc" style="color:var(--faint)">blog</a> · <a href="https://github.com/xiaolongnk" style="color:var(--faint)">github.com/xiaolongnk</a></p>
+</main></body></html>
