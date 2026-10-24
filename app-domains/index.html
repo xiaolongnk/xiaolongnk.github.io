@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>App Domains — 按产品复制分流规则</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #2a2f3a;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #6ea8fe;
+      --accent-2: #3dd68c;
+      --chip: #222733;
+      --chip-on: #1e3a5f;
+      --danger: #f07178;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Noto Sans SC", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1a2740 0%, transparent 55%), var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      margin: 0 0 28px;
+      font-size: 0.95rem;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .chip:hover { border-color: #4a5568; }
+    .chip.on {
+      background: var(--chip-on);
+      border-color: var(--accent);
+      color: #dceaff;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    select, input[type="search"] {
+      background: #12151c;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      min-width: 180px;
+    }
+    input[type="search"] { flex: 1; min-width: 220px; }
+    button.primary, button.ghost {
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0b1220;
+    }
+    button.primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    button.ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    button.ghost:hover { border-color: #556070; }
+    textarea {
+      width: 100%;
+      min-height: 360px;
+      resize: vertical;
+      background: #0c0e13;
+      color: #d7dde8;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .ok { color: var(--accent-2); }
+    .err { color: var(--danger); }
+    .foot {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .foot a { color: var(--accent); }
+    .hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>App Domains</h1>
+    <p class="sub">选产品 → 生成域名规则 → 一键复制到 VPN / Clash / Surge。数据来自开源 geosite，本站不维护域名库。</p>
+
+    <section class="panel">
+      <div class="label">常用产品</div>
+      <div class="chips" id="chips"></div>
+      <p class="hint">可多选。Gemini 从 AI 分类里筛；Grok 用独立的 xai 列表（不含整站 X/Twitter）。</p>
+    </section>
+
+    <section class="panel">
+      <div class="label">或搜索 geosite 分类名</div>
+      <div class="row">
+        <input type="search" id="custom" placeholder="例如 anthropic、netflix、telegram、spotify" list="known" />
+        <datalist id="known"></datalist>
+        <button class="ghost" type="button" id="addCustom">加入</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="label">导出格式</div>
+      <div class="row">
+        <select id="format">
+          <option value="clash-suffix">Clash DOMAIN-SUFFIX（推荐粘进规则）</option>
+          <option value="clash-rule">Clash RULE-SET 风格 DOMAIN</option>
+          <option value="surge">Surge DOMAIN-SET（纯域名）</option>
+          <option value="plain">纯域名列表</option>
+        </select>
+        <button class="primary" type="button" id="generate">生成列表</button>
+        <button class="ghost" type="button" id="copy" disabled>复制</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="meta">
+        <span id="status">先勾选产品，再点生成。</span>
+        <span id="count"></span>
+      </div>
+      <textarea id="out" readonly placeholder="生成结果会出现在这里…"></textarea>
+      <p class="foot">
+        数据源：
+        <a href="https://github.com/MetaCubeX/meta-rules-dat" target="_blank" rel="noreferrer">MetaCubeX/meta-rules-dat</a>
+        （源自
+        <a href="https://github.com/v2fly/domain-list-community" target="_blank" rel="noreferrer">v2fly/domain-list-community</a>
+        ）。仅供分流配置使用。
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const CDN = "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite";
+
+    const PRESETS = [
+      { id: "google", label: "Google", source: "google" },
+      { id: "youtube", label: "YouTube", source: "youtube" },
+      { id: "gemini", label: "Gemini", source: "category-ai-!cn", filter: /gemini|aistudio|makersuite|generativelanguage|bard\.google|deepmind|ai\.google\.dev|ai\.studio|notebooklm|alkalimakersuite|geminiweb/i },
+      { id: "openai", label: "ChatGPT / OpenAI", source: "openai" },
+      { id: "grok", label: "Grok", source: "xai" },
+      { id: "facebook", label: "Facebook", source: "facebook" },
+      { id: "instagram", label: "Instagram", source: "instagram" },
+      { id: "meta", label: "Meta（含 FB/IG）", source: "meta" },
+      { id: "github", label: "GitHub", source: "github" },
+      { id: "x", label: "X / Twitter", source: "x" },
+      { id: "anthropic", label: "Claude / Anthropic", source: "anthropic" },
+    ];
+
+    const SUGGEST = [
+      "google","youtube","openai","github","facebook","instagram","meta","x","xai",
+      "anthropic","netflix","telegram","spotify","discord","microsoft","apple","amazon",
+      "tiktok","twitter","category-ai-!cn","gfw","geolocation-!cn"
+    ];
+
+    const selected = new Set(["google", "youtube", "openai", "grok", "github"]);
+    const customSources = new Set();
+    const cache = new Map();
+
+    const chipsEl = document.getElementById("chips");
+    const outEl = document.getElementById("out");
+    const statusEl = document.getElementById("status");
+    const countEl = document.getElementById("count");
+    const copyBtn = document.getElementById("copy");
+    const knownEl = document.getElementById("known");
+
+    SUGGEST.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      knownEl.appendChild(opt);
+    });
+
+    function renderChips() {
+      chipsEl.innerHTML = "";
+      PRESETS.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip" + (selected.has(p.id) ? " on" : "");
+        btn.textContent = p.label;
+        btn.addEventListener("click", () => {
+          if (selected.has(p.id)) selected.delete(p.id);
+          else selected.add(p.id);
+          btn.classList.toggle("on");
+        });
+        chipsEl.appendChild(btn);
+      });
+      customSources.forEach((name) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip on";
+        btn.textContent = name + " ×";
+        btn.title = "再点一次移除";
+        btn.addEventListener("click", () => {
+          customSources.delete(name);
+          renderChips();
+        });
+        chipsEl.appendChild(btn);
+      });
+    }
+
+    function normalizeDomain(raw) {
+      let s = String(raw).trim();
+      if (!s || s === "payload:") return null;
+      s = s.replace(/^-\s*/, "").replace(/^['"]|['"]$/g, "");
+      s = s.replace(/^\+\./, "").replace(/^full:/i, "").replace(/^domain:/i, "");
+      s = s.replace(/\s+@\w+$/i, "");
+      if (s.startsWith("regexp:") || s.startsWith("keyword:")) return null;
+      s = s.replace(/^\*\./, "").replace(/\.$/, "");
+      if (!s || s.includes(" ") || !s.includes(".")) return null;
+      return s.toLowerCase();
+    }
+
+    function parsePayload(text) {
+      const domains = [];
+      for (const line of text.split(/\r?\n/)) {
+        const d = normalizeDomain(line);
+        if (d) domains.push(d);
+      }
+      return domains;
+    }
+
+    async function fetchSource(name) {
+      if (cache.has(name)) return cache.get(name);
+      const url = `${CDN}/${encodeURIComponent(name)}.yaml`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`${name} 拉取失败（HTTP ${res.status}）`);
+      const text = await res.text();
+      const domains = parsePayload(text);
+      cache.set(name, domains);
+      return domains;
+    }
+
+    function formatDomains(domains, format) {
+      const uniq = [...new Set(domains)].sort();
+      if (format === "plain" || format === "surge") return uniq.join("\n");
+      if (format === "clash-rule") {
+        return uniq.map((d) => `DOMAIN,${d},PROXY`).join("\n");
+      }
+      // clash-suffix
+      return uniq.map((d) => `DOMAIN-SUFFIX,${d},PROXY`).join("\n");
+    }
+
+    async function generate() {
+      const jobs = [];
+      for (const p of PRESETS) {
+        if (!selected.has(p.id)) continue;
+        jobs.push({ label: p.label, source: p.source, filter: p.filter || null });
+      }
+      for (const name of customSources) {
+        jobs.push({ label: name, source: name, filter: null });
+      }
+      if (!jobs.length) {
+        statusEl.textContent = "至少选一个产品。";
+        statusEl.className = "err";
+        return;
+      }
+
+      statusEl.textContent = "正在从开源库拉取…";
+      statusEl.className = "";
+      copyBtn.disabled = true;
+      outEl.value = "";
+      countEl.textContent = "";
+
+      const all = [];
+      const notes = [];
+      try {
+        for (const job of jobs) {
+          let domains = await fetchSource(job.source);
+          if (job.filter) {
+            domains = domains.filter((d) => job.filter.test(d));
+            notes.push(`${job.label}: ${domains.length}（已筛选）`);
+          } else {
+            notes.push(`${job.label}: ${domains.length}`);
+          }
+          all.push(...domains);
+        }
+        const format = document.getElementById("format").value;
+        const text = formatDomains(all, format);
+        outEl.value = text;
+        const n = text ? text.split("\n").filter(Boolean).length : 0;
+        statusEl.textContent = "完成 · " + notes.join(" · ");
+        statusEl.className = "ok";
+        countEl.textContent = n + " 条规则";
+        copyBtn.disabled = n === 0;
+      } catch (err) {
+        statusEl.textContent = String(err.message || err);
+        statusEl.className = "err";
+      }
+    }
+
+    async function copyOut() {
+      const text = outEl.value;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        statusEl.textContent = "已复制到剪贴板，可直接粘进 VPN / Clash 规则。";
+        statusEl.className = "ok";
+      } catch {
+        outEl.focus();
+        outEl.select();
+        statusEl.textContent = "自动复制失败，请手动全选复制。";
+        statusEl.className = "err";
+      }
+    }
+
+    document.getElementById("addCustom").addEventListener("click", () => {
+      const name = document.getElementById("custom").value.trim().toLowerCase();
+      if (!name) return;
+      customSources.add(name);
+      document.getElementById("custom").value = "";
+      renderChips();
+    });
+    document.getElementById("custom").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("addCustom").click();
+      }
+    });
+    document.getElementById("generate").addEventListener("click", generate);
+    document.getElementById("copy").addEventListener("click", copyOut);
+
+    renderChips();
+  </script>
+</body>
+</html>
